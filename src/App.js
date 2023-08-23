@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from 'react';
+import React,{useEffect, useState , useRef  } from 'react';
 import { Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import axios from 'axios'
 
@@ -7,13 +7,24 @@ import './App.css';
 function App() {
   const [keyword, setKeyword] = useState("");
   const [wordInfo, setWordInfo] = useState([]);
+  const audioRef = useRef(null);
+
 
   const getDataFromAPI = async () => {
-    const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${keyword}`);
-    const filteredData = response.data;
-    console.log(filteredData);
-    setWordInfo(filteredData);
-  };
+    try {
+        const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${keyword}`);
+        const filteredData = response.data;
+        console.log(filteredData);
+        setWordInfo(filteredData);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
+
+  useEffect(()=>{
+    getDataFromAPI()
+  },[setWordInfo])
+
 
   const searchBox = (event) => {
     event.preventDefault();
@@ -21,10 +32,12 @@ function App() {
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
+    event.preventDefault(); 
     getDataFromAPI();
   };
 
+
+  console.log(wordInfo)
   
   return (
     <div className='App'>
@@ -58,6 +71,35 @@ function App() {
           </InputGroup>
         </form>
       </div>
+
+      <div className='flex flex-row justify-between ml-[192px]'>
+  {wordInfo.map((data, index) => {
+    console.log(data.phonetics[0].audio)
+    if (index === 0) {
+      return (
+        <div className='flex flex-row justify-between' key={index}>
+          <span className='text-[4rem]' id='font1'>{data.word}</span>
+          <audio ref={audioRef} src={data?.phonetics?.audio}  >
+            <source src={data?.phonetics?.audio} type="audio/mpeg" />
+            <source src={data?.phonetics?.audio} type="audio/ogg"/></audio>
+          <button onClick={() => audioRef.current.play()}>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="75" 
+              height="75" 
+              viewBox="0 0 75 75" 
+              fill="none"
+            >
+              <circle opacity="0.25" cx="37.5" cy="37.5" r="37.5" fill="#A445ED"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M29 27V48L50 37.5L29 27Z" fill="#A445ED"/>
+            </svg>
+          </button>
+        </div>
+      );
+    }
+    return null;
+  })}
+</div>
     </div>
   );
 }
