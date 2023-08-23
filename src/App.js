@@ -74,15 +74,18 @@ function App() {
 
       <div className='flex flex-row justify-between ml-[192px]'>
   {wordInfo.map((data, index) => {
+    const audioURL = data.phonetics[0]?.audio;
     console.log(data.phonetics[0].audio)
     if (index === 0) {
+      if(audioURL){
       return (
         <div className='flex flex-row justify-between' key={index}>
           <span className='text-[4rem]' id='font1'>{data.word}</span>
-          <audio ref={audioRef} src={data?.phonetics?.audio}  >
-            <source src={data?.phonetics?.audio} type="audio/mpeg" />
-            <source src={data?.phonetics?.audio} type="audio/ogg"/></audio>
-          <button onClick={() => audioRef.current.play()}>
+          <audio ref={audioRef} src={audioURL}>
+              <source src={audioURL} type="audio/mpeg" />
+              <source src={audioURL} type="audio/ogg"/>
+            </audio>
+            <button onClick={() => audioRef.current.play()}>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="75" 
@@ -96,9 +99,17 @@ function App() {
           </button>
         </div>
       );
+    } else {
+      return (
+        <div className='flex flex-row justify-between' key={index}>
+          <span className='text-[4rem]' id='font1'>{data.word}</span>
+          <span>The element has no supported sources.</span>
+        </div>
+      );
     }
-    return null;
-  })}
+  }
+  return null;
+})}
 </div>
     </div>
   );
